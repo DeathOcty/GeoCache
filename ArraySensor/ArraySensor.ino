@@ -12,6 +12,7 @@ Author:     DESKTOP-9CQ4NRH\Ethan Areizaga
 #define BTN 2
 #define Meter 0
 #define LEDCount 5
+#define CANT_WAKE_UP goto WAKE_ME_UP_INSIDE;
 struct LED {
 	long period;
 	long ratio;
@@ -26,6 +27,8 @@ LED lights[5];
 // The setup() function runs once each time the micro-controller starts
 void setup()
 {
+
+
 	Serial.begin(115200);
 	Serial.println("Start");
 
@@ -33,9 +36,9 @@ void setup()
 	for (int i = 0; i < LEDCount; i++)
 	{
 		
-		lights[i].anode = 2 + i;
-		lights[i].cathode = 3 + i;
-		lights[i].frequency = 0;
+		lights[i].anode = 3 + i;
+		lights[i].cathode = 4 + i;
+		lights[i].frequency = i*200;
 		lights[i].period = 0.0;
 		lights[i].ratio = 1.0;
 	}
@@ -84,7 +87,7 @@ void loop()
 	int frequencysum = 0;
 	for (int i = 0; i < LEDCount; i++)
 	{
-		lights[i].ratio += (0.01 * ((lastLed / lights[i].period) - lights[i].ratio));
+		/*lights[i].ratio += (0.01 * ((lastLed / lights[i].period) - lights[i].ratio));*/
 		if (lights[i].period * lights[i].ratio > result) {
 			pinMode(lights[i].cathode, OUTPUT);
 			pinMode(lights[i].anode, OUTPUT);
@@ -100,8 +103,8 @@ void loop()
 	else {
 		noTone(SPEAKER);
 	}
-	if (micros() - timedelay > 1000) {
-		if (digitalRead(BTN) == LOW) {
+	if (micros() - timedelay > 500) {
+		if (/*digitalRead(BTN) == LOW*/ true) {
 			Serial.print("Period(");
 			for (int i = 0; i < LEDCount; i++)
 			{
@@ -118,8 +121,6 @@ void loop()
 			timedelay = micros();
 		}
 	}
-
-	Serial.println("7");
 }
 
 
