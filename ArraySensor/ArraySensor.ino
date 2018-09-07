@@ -39,18 +39,16 @@ void setup()
 		lights[i].period = 0.0;
 		lights[i].ratio = 1.0;
 	}
-	Serial.println("1");
+
 }
 
 // Add the main program code into the continuous loop() function
 void loop()
 {
-	Serial.println("2");
 	long result = map(analogRead(Meter), 0, 1023, 0, 250000);
 	for (int i = 0; i < LEDCount; i++)
 	{
-		Serial.println("3-");
-		Serial.print(i);
+
 		pinMode(lights[i].cathode, OUTPUT);
 		pinMode(lights[i].anode, OUTPUT);
 		digitalWrite(lights[i].cathode, HIGH);
@@ -59,8 +57,7 @@ void loop()
 	}
 	for (int i = 0; i < LEDCount; i++)
 	{
-		Serial.println("4-");
-		Serial.print(i);
+
 		pinMode(lights[i].cathode, INPUT);
 		pinMode(lights[i].anode, OUTPUT);
 		digitalWrite(lights[i].anode, LOW);
@@ -85,7 +82,6 @@ void loop()
 		}
 	}
 	int frequencysum = 0;
-	Serial.println("5");
 	for (int i = 0; i < LEDCount; i++)
 	{
 		lights[i].ratio += (0.01 * ((lastLed / lights[i].period) - lights[i].ratio));
@@ -104,7 +100,6 @@ void loop()
 	else {
 		noTone(SPEAKER);
 	}
-	Serial.println("6");
 	if (micros() - timedelay > 1000) {
 		if (digitalRead(BTN) == LOW) {
 			Serial.print("Period(");
