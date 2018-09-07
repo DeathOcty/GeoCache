@@ -74,7 +74,7 @@ void loop()
 		while (dischargedleds != 5) {
 			for (int i = 0; i < LEDCount; i++)
 			{
-				if (lights[i].period != 0) {
+				if (lights[i].period == 0) {
 					if (digitalRead(lights[i].cathode) == LOW) {
 						lights[i].period = micros() - starttime;
 						dischargedleds += 1;
