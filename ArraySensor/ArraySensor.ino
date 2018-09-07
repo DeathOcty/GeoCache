@@ -26,12 +26,12 @@ LED lights[5];
 // The setup() function runs once each time the micro-controller starts
 void setup()
 {
-	//Serial.begin(BLAH)
+	Serial.begin(115200);
 
 	pinMode(BTN, INPUT_PULLUP);
 	for (int i = 0; i < LEDCount; i++)
 	{
-		pinMode(2 + i,)
+		
 		lights[i].anode = 2 + i;
 		lights[i].cathode = 3 + i;
 		lights[i].frequency = 0;
@@ -80,11 +80,10 @@ void loop()
 		}
 	}
 	int frequencysum = 0;
-	for (int i = 0; i < LED; i++)
+	for (int i = 0; i < LEDCount; i++)
 	{
-		//LED X Ratio += (0.01 * (((float)MaxLEDPeriod / (float)LEDXPeriod) - LED X Ratio))
 		lights[i].ratio += (0.01 * ((lastLed / lights[i].period) - lights[i].ratio));
-		if (lights[i].period * ratio > result) {
+		if (lights[i].period * lights[i].ratio > result) {
 			pinMode(lights[i].cathode, OUTPUT);
 			pinMode(lights[i].anode, OUTPUT);
 			digitalWrite(lights[i].cathode, LOW);
@@ -93,14 +92,14 @@ void loop()
 		}
 
 	}
-	if (sum != 0) {
+	if (frequencysum != 0) {
 		tone(SPEAKER, frequencysum);
 	}
 	else {
 		noTone(SPEAKER);
 	}
 
-	if (mircos() - timedelay > 1000) {
+	if (micros() - timedelay > 1000) {
 		if (digitalRead(BTN) == LOW) {
 			Serial.print("Period(");
 			for (int i = 0; i < LEDCount; i++)
