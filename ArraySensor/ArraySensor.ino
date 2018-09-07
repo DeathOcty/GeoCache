@@ -49,8 +49,6 @@ void loop()
 	long result = map(analogRead(Meter), 0, 1023, 0, 250000);
 	for (int i = 0; i < LEDCount; i++)
 	{
-		Serial.println("3-");
-		Serial.print(i);
 		pinMode(lights[i].cathode, OUTPUT);
 		pinMode(lights[i].anode, OUTPUT);
 		digitalWrite(lights[i].cathode, HIGH);
@@ -59,8 +57,6 @@ void loop()
 	}
 	for (int i = 0; i < LEDCount; i++)
 	{
-		Serial.println("4-");
-		Serial.print(i);
 		pinMode(lights[i].cathode, INPUT);
 		pinMode(lights[i].anode, OUTPUT);
 		digitalWrite(lights[i].anode, LOW);
@@ -72,6 +68,7 @@ void loop()
 	{
 		int dischargedleds = 0;
 		while (dischargedleds != 5) {
+			Serial.println(dischargedleds);
 			for (int i = 0; i < LEDCount; i++)
 			{
 				if (lights[i].period != 0) {
