@@ -222,6 +222,53 @@ float calcBearing(float flat1, float flon1, float flat2, float flon2)
 {
 	float bearing = 0.0;
 
+	float y = sin(flon2 - flon1) * cos(flat2);
+	float x = (cos(flat1) * sin(flat2)) - (sin(flat1) * cos(flat2) * cos(flon2 - flon1));
+	if (y > 0)
+	{
+		if (x > 0)
+		{
+			return atan(y / x);
+		}
+		else if (x < 0)
+		{
+			return 180.0 - atan(-y / x);
+		}
+		else
+		{
+			return 90.0;
+		}
+	}
+	else if (y < 0)
+	{
+		if (x > 0)
+		{
+			return -atan(-y / x);
+		}
+		else if (x < 0)
+		{
+			return atan(y / x) - 180.0;
+		}
+		else
+		{
+			return 270.0;
+		}
+	}
+	else
+	{
+		if (x > 0)
+		{
+			return 0;
+		}
+		else if (x < 0)
+		{
+			return 180.0;
+		}
+		else
+		{
+			return 0;
+		}
+	}
 	// add code here
 
 	return(bearing);
