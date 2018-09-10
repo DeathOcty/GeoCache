@@ -167,11 +167,19 @@ Decimal degrees coordinate.
 **************************************************/
 float degMin2DecDeg(char *cind, char *ccor)
 {
-	float degrees = 0.0;
+	float degrees = atof(ccor);
 
 	// add code here
+	float deg = floor(degrees / 100);
+	float min = degrees - deg;
 
-	return(degrees);
+	if (*cind == 'S' || *cind == 'W')
+	{
+		deg = -deg;
+		min = -min;
+	}
+
+	return (deg + (min / 60));
 }
 
 /**************************************************
