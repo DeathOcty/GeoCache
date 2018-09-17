@@ -232,11 +232,62 @@ angle in decimal degrees from magnetic north (NOTE: arc tangent returns range of
 **************************************************/
 float calcBearing(float flat1, float flon1, float flat2, float flon2)
 {
-	float bearing = 0.0;
+	float degrees = 0.0f;
 
+	float y = sin(flon2 - flon1) * cos(flat2);
+	float x = (cos(flat1) * sin(flat2)) - (sin(flat1) * cos(flat2) * cos(flon2 - flon1));
+	if (y > 0)
+	{
+		if (x > 0)
+		{
+			degrees = atan(y / x);
+		}
+		else if (x < 0)
+		{
+			degrees = PI - atan(-y / x);
+		}
+		else
+		{
+			degrees = PI / 2;
+		}
+	}
+	else if (y < 0)
+	{
+		if (x > 0)
+		{
+			degrees = -atan(-y / x);
+		}
+		else if (x < 0)
+		{
+			degrees = atan(y / x) - PI;
+		}
+		else
+		{
+			degrees = 3 * PI / 2;
+		}
+	}
+	else
+	{
+		if (x > 0)
+		{
+			degrees = 0;
+		}
+		else if (x < 0)
+		{
+			degrees = PI;
+		}
+		else
+		{
+			degrees = 0;
+		}
+	}
 	// add code here
 
-	return(bearing);
+	degrees /= PI;
+	degrees *= 180;
+
+	return degrees;
+
 }
 
 /*************************************************
