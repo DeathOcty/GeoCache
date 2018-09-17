@@ -103,7 +103,7 @@ GPS_ON and SDC_ON during the actual GeoCache Flag Hunt on Finals Day.
 uint8_t target = 0;		// target number
 float heading = 0.0;	// target heading
 float distance = 0.0;	// target distance
-
+float test = 0.0f;
 #if GPS_ON
 #include <SoftwareSerial.h>
 SoftwareSerial gps(GPS_RX, GPS_TX);
@@ -305,7 +305,105 @@ parameters are in global data space.
 */
 void setNeoPixel(void)
 {
-	// add code here
+	strip.clear();
+	strip.setBrightness(map(analogRead(0),0,1023,0,255));
+	switch (target) {
+	case 0:
+		strip.setPixelColor(32, 255, 255, 255);
+		break;
+	case 1:
+		strip.setPixelColor(24, 255, 255, 255);
+		break;
+	case 2:
+		strip.setPixelColor(8, 255, 255, 255);
+		break;
+	case 3:
+		strip.setPixelColor(0, 255, 255, 255);
+		break;
+	}
+	
+	
+	Serial.println(heading);
+	strip.setPixelColor(17, 100,0,0);
+	strip.setPixelColor(19, 0, 0, 255);
+	if (heading < -168.75f) { //G
+		strip.setPixelColor(20, 0, 0, 255);
+		strip.setPixelColor(21, 0, 0, 255);
+	}
+	else if (heading < -146.25f) { //P
+		strip.setPixelColor(29, 0, 0, 255);
+		strip.setPixelColor(28, 0, 0, 255);
+	}
+	else if (heading < -123.75f) { //N
+		strip.setPixelColor(28, 0, 0, 255);
+		strip.setPixelColor(37, 0, 0, 255);
+	}
+	else if (heading < -101.25f) { //M
+		strip.setPixelColor(28, 0, 0, 255);
+		strip.setPixelColor(36, 0, 0, 255);
+	}
+	else if (heading < -78.75f) { //L
+		strip.setPixelColor(27, 0, 0, 255);
+		strip.setPixelColor(35, 0, 0, 255);
+	}
+	else if (heading < -56.25f) { //J
+		strip.setPixelColor(34, 0, 0, 255);
+		strip.setPixelColor(26, 0, 0, 255);
+	}
+	else if (heading < -33.75f) { //I
+		strip.setPixelColor(33, 0, 0, 255);
+		strip.setPixelColor(26, 0, 0, 255);
+	}
+	else if (heading < -11.25f) { //H
+		strip.setPixelColor(25, 0, 0, 255);
+		strip.setPixelColor(26, 0, 0, 255);
+	}
+	else if (heading < 11.25f) { // 0
+		strip.setPixelColor(18, 0, 0, 255);
+		strip.setPixelColor(17, 0, 0, 255);
+	}
+	else if (heading < 33.75f) { //23
+		strip.setPixelColor(18, 0, 0, 255);
+		strip.setPixelColor(9, 0, 0, 255);
+	}
+	else if (heading < 56.25f) { //45
+		strip.setPixelColor(10, 0, 0, 255);
+		strip.setPixelColor(1, 0, 0, 255);
+	}
+	else if (heading < 78.75f) { //C
+		strip.setPixelColor(10, 0, 0, 255);
+		strip.setPixelColor(2, 0, 0, 255);
+	}
+	else if (heading < 101.25f) { //90
+		strip.setPixelColor(11, 0, 0, 255);
+		strip.setPixelColor(3, 0, 0, 255);
+	}
+	else if (heading < 123.75f) { //D
+		strip.setPixelColor(12, 0, 0, 255);
+		strip.setPixelColor(4, 0, 0, 255);
+	}
+	else if (heading < 146.25f) { //E
+		strip.setPixelColor(12, 0, 0, 255);
+		strip.setPixelColor(5, 0, 0, 255);
+	}
+	else if (heading < 168.75f) { //F
+		strip.setPixelColor(12, 0, 0, 255);
+		strip.setPixelColor(13, 0, 0, 255);
+	}
+	else {
+		strip.setPixelColor(20, 0, 0, 255);
+		strip.setPixelColor(21, 0, 0, 255);
+	}
+	
+	// I H 0 23 45
+	// J K 0 K C
+	// L K O K 90
+	// M K K K D
+	// N P G F E
+
+
+	strip.show();
+
 }
 
 #endif	// NEO_ON
@@ -439,7 +537,6 @@ void setup(void)
 #if NEO_ON
 	// init NeoPixel Shield
 	strip.begin();
-	strip.setPixelColor(19, 0, 0, 255);
 #endif	
 
 #if SDC_ON
@@ -469,6 +566,7 @@ void setup(void)
 
 void loop(void)
 {
+	
 	// get GPS message
 	char *cstr = getGpsMessage();
 
@@ -493,6 +591,7 @@ void loop(void)
 		char *tmp2 = new char[16];
 		char NS;
 		char EW;
+		char *tmp3 = new char[16];
 		{
 			
 			
@@ -531,10 +630,24 @@ void loop(void)
 			EW = cstr[i];
 			i += 2;
 			count++;
+			z = 0;
+			while (cstr[i] != ',') {
+				i++;
+
+			}
+			i++;
+			while (cstr[i] != ',') {
+				tmp3[z] = cstr[i];
+				z++;
+				i++;
+
+			}
 		}
 		// convert latitude and longitude degrees minutes to decimal degrees
 		float lat = degMin2DecDeg(&NS, tmp);
 		float lon = degMin2DecDeg(&EW, tmp2);
+		float cog = atof(tmp3);
+		delete tmp3;
 		delete tmp;
 		delete tmp2;
 
@@ -585,10 +698,10 @@ void loop(void)
 		distance = calcDistance(lat, lon, tarlat,tarlon);
 		
 		// calculate destination heading
-		heading = 
-			calcBearing(lat, lon, tarlat, tarlon);
+		heading = calcBearing(lat, lon, tarlat, tarlon);
 
 		// calculate relative bearing
+		heading = heading - cog;
 		
 
 #if SDC_ON
@@ -602,6 +715,7 @@ void loop(void)
 			
 		// set NeoPixel target display information
 		setNeoPixel();
-#endif			
+#endif	
+		
 	}
 }
