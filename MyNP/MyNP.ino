@@ -611,6 +611,7 @@ void loop(void)
 		myFile.write(',');
 		myFile.write(distance);
 		myFile.write('\n');
+		myFile.flush();
 #endif
 
 #if NEO_ON
