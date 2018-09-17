@@ -116,6 +116,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(40, NEO_TX, NEO_GRB + NEO_KHZ800);
 
 #if SDC_ON
 #include <SD.h>
+SDLib::File myFile;
 #endif
 
 /*
@@ -454,7 +455,11 @@ void setup(void)
 	SD.begin();
 	for (int i = 0; i < 100; i++)
 	{
-		if (!SD.exists("MyMap" << i << ".txt"));
+		if (!SD.exists("MyMap" << i << ".txt"))
+		{
+			myFile = SD.open("MyMap" << i << ".txt"));
+			break;
+		}
 	}
 #endif
 
@@ -598,7 +603,14 @@ void loop(void)
 
 #if SDC_ON
 		// write required data to SecureDigital then execute flush()
-		SDLib::File myFile = SDLib::File(SdFile(), "MyFile" conc)
+		myFile.write(lon);
+		myFile.write(',');
+		myFile.write(lat);
+		myFile.write(',');
+		myFile.write(heading);
+		myFile.write(',');
+		myFile.write(distance);
+		myFile.write('\n');
 #endif
 
 #if NEO_ON
