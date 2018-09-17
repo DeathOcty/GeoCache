@@ -82,17 +82,22 @@ There may not be sufficient room in the PROGRAM or DATA memory to
 enable all these libraries at the same time.  You must have NEO_ON,
 GPS_ON and SDC_ON during the actual GeoCache Flag Hunt on Finals Day.
 */
-#define NEO_ON 0		// NeoPixel Shield (0=OFF, 1=ON)
+#define NEO_ON 1		// NeoPixel Shield (0=OFF, 1=ON)
 #define LOG_ON 1		// Serial Terminal Logging (0=OFF, 1=ON)
 #define SDC_ON 0		// Secure Digital Card (0=OFF, 1=ON)
+#define TAR_ON 0
 #define GPS_ON 1		// 0 = simulated GPS message, 1 = actual GPS message
 
 // define pin usage
 #define NEO_TX	6		// NEO transmit
 #define GPS_TX	7		// GPS transmit
 #define GPS_RX	8		// GPS receive
+#define BTN_G 2
+#define PTR_A 0
 
 #define GPS_BUFSIZ	96	// max size of GPS char buffer
+
+#define PI 3.14159265359f
 
 // global variables
 uint8_t target = 0;		// target number
@@ -199,11 +204,18 @@ distance in feet (3959 earth radius in miles * 5280 feet per mile)
 **************************************************/
 float calcDistance(float flat1, float flon1, float flat2, float flon2)
 {
-	float distance = 0.0;
+	float distanceL = 0.0;
 
 	// add code here
+	float rl[4]{ flat1 * (PI / 180.0f),flon1* (PI / 180.0f),flat2* (PI / 180.0f),flon2* (PI / 180.0f) };
 
-	return(distance);
+
+
+	distanceL = pow(sin((rl[2] - rl[0]) / 2), 2) + cos(rl[0]) * cos(rl[2]) * pow(sin((rl[3] - rl[1]) / 2),2);
+	distanceL = 2 * atan2(sqrt(distanceL), sqrt(1 - distanceL));
+	distanceL = 6371 * distanceL;
+
+	return(distanceL);
 }
 
 /**************************************************
@@ -375,6 +387,8 @@ void setup(void)
 
 #if NEO_ON
 	// init NeoPixel Shield
+	strip.begin();
+	strip.setPixelColor(19, 0, 0, 255);
 #endif	
 
 #if SDC_ON
@@ -397,6 +411,9 @@ void setup(void)
 #endif		
 
 	// set target button pinmode
+	pinMode(BTN_G, INPUT_PULLUP);
+
+
 }
 
 void loop(void)
@@ -413,24 +430,127 @@ void loop(void)
 #endif
 
 		// check button for incrementing target index
-
+		if(digitalRead(BTN_G) == LOW) {
+			target += 1;
+			if (target == 4) {
+				target = 0;
+			}
+		}
+		
 		// parse required latitude, longitude and course over ground message parameters
+		char *tmp = new char[16];
+		char *tmp2 = new char[16];
+		char NS;
+		char EW;
+		{
+			
+			
+			int i = 0;
+			int count = 0;
+			while (count != 3) {
+				if (cstr[i] == ',') {
+					count += 1;
+				}
+				i += 1;
+			}
+			int z = 0;
+			while (cstr[i] != ',') {
+				tmp[z] = cstr[i];
+				z++;
+				i++;
 
+			}
+			tmp[z + 1] = '\0';
+			count++;
+			i++;
+			NS = cstr[i];
+			i += 2;
+			count++;
+
+			z = 0;
+			while (cstr[i] != ',') {
+				tmp2[z] = cstr[i];
+				z++;
+				i++;
+
+			}
+			tmp2[z + 1] = '\0';
+			count++;
+			i++;
+			EW = cstr[i];
+			i += 2;
+			count++;
+		}
 		// convert latitude and longitude degrees minutes to decimal degrees
+		float lat = degMin2DecDeg(&NS, tmp);
+		float lon = degMin2DecDeg(&EW, tmp2);
+		delete tmp;
+		delete tmp2;
+
+		float tarlat;
+		float tarlon;
+#if TAR_ON
+		//Input Target values
+		switch (target)
+		{
+		case 0:
+			tarlat = 0.0f;
+			tarlon = 0.0f;
+			break;
+		case 0:
+			tarlat = 0.0f;
+			tarlon = 0.0f;
+			break;
+		case 0:
+			tarlat = 0.0f;
+			tarlon = 0.0f;
+			break;
+		case 0:
+			tarlat = 0.0f;
+			tarlon = 0.0f;
+			break;
+		default:
+			tarlat = 0.0f;
+			tarlon = 0.0f;
+			break;
+		}
+
+#else
+		switch (target)
+		{
+		case 0:
+			tarlat = GEOLAT0;
+			tarlon = GEOLON0;
+			break;
+		default:
+			tarlat = 0.0f;
+			tarlon = 0.0f;
+			break;
+		}
+
+#endif
 
 		// calculate destination distance
-
+		distance = calcDistance(lat, lon, tarlat,tarlon);
+		
 		// calculate destination heading
+		heading = 
+			calcBearing(lat, lon, tarlat, tarlon);
 
 		// calculate relative bearing
+		
 
 #if SDC_ON
 		// write required data to SecureDigital then execute flush()
 #endif
 
 #if NEO_ON
+		int bright = analogRead(PTR_A);
+		bright = map(bright, 0, 1023, 0, 255);
+		strip.setBrightness(bright);
+			
 		// set NeoPixel target display information
-		setNeoPixel(target, heading, distance);
+		setNeoPixel();
 #endif			
 	}
 }
