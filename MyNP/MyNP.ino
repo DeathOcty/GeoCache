@@ -8,9 +8,9 @@ your project however you wish.  Be sure you compile in "RELEASE" mode.
 
 Complete the team information below before submitting code for grading.
 
-Team Number: ?
+Team Number: 4
 
-Team Members: ?
+Team Members: Ethan Areizaga, Jacob Walston
 
 NOTES:
 You only have 32k of program space and 2k of data space.  You must
@@ -84,9 +84,9 @@ GPS_ON and SDC_ON during the actual GeoCache Flag Hunt on Finals Day.
 */
 #define NEO_ON 1    // NeoPixel Shield (0=OFF, 1=ON)
 #define LOG_ON 1    // Serial Terminal Logging (0=OFF, 1=ON)
-#define SDC_ON 0    // Secure Digital Card (0=OFF, 1=ON)
-#define TAR_ON 0
-#define GPS_ON 0    // 0 = simulated GPS message, 1 = actual GPS message
+#define SDC_ON 1    // Secure Digital Card (0=OFF, 1=ON)
+#define TAR_ON 1
+#define GPS_ON 1    // 0 = simulated GPS message, 1 = actual GPS message
 
 // define pin usage
 #define NEO_TX  6   // NEO transmit
@@ -105,6 +105,7 @@ uint8_t target = 0;   // target number
 float heading = 0.0;  // target heading
 float distance = 0.0; // target distance
 float test = 0.0f;
+float laaas = 0.0f;
 #if GPS_ON
 #include <SoftwareSerial.h>
 SoftwareSerial gps(GPS_RX, GPS_TX);
@@ -322,6 +323,9 @@ void setNeoPixel(void)
 {
   strip.clear();
   strip.setBrightness(map(analogRead(0),0,1023,0,255));
+  if (laaas != 0) {
+	  strip.setPixelColor(6, 255, 0, 0);
+  }
   switch (target) {
   case 0:
     strip.setPixelColor(32, 255, 255, 255);
@@ -429,7 +433,6 @@ void setNeoPixel(void)
   }
 
   int tmp = (int)map(distance, 1, 2500, 0, 19);
-  tmp = 10;
   //White -> Red -> Green -> Blue
   unsigned int color = 0x0000FF;
   int tempi = 0;
@@ -441,18 +444,23 @@ void setNeoPixel(void)
 	  }
 	  else if (i == 10) {
 		  tempi = 10;
-		  color = 0xFF0000;
+		  color = 0;
 	  }
 	  else if (i == 15) {
 		  tempi = 15;
-		  color = 0xFFFFFFFF;
+		  color = 255;
 	  }
 
-	  strip.setPixelColor(7 + ((i-tempi)*8), color);
+	  if (i >= 10) {
+		  strip.setPixelColor(7 + ((i - tempi) * 8), 255,color,color);
+	  }
+	  else {
+		  strip.setPixelColor(7 + ((i - tempi) * 8), color);
+	  }
 
 	  
   }
-  
+
 
 
   strip.show();
@@ -722,20 +730,20 @@ void loop(void)
     switch (target)
     {
     case 0:
-      tarlat = 0.0f;//TODO: Values
-      tarlon = 0.0f;
+      tarlat = 28.5957f;//TODO: Values
+      tarlon = -81.30656f;
       break;
-    case 0:
-      tarlat = 0.0f;
-      tarlon = 0.0f;
+    case 1:
+      tarlat = 28.59588f;
+      tarlon = -81.30127f;
       break;
-    case 0:
-      tarlat = 0.0f;
-      tarlon = 0.0f;
+    case 2:
+      tarlat = 28.59005f;
+      tarlon = -81.30579f;
       break;
-    case 0:
-      tarlat = 0.0f;
-      tarlon = 0.0f;
+    case 3:
+      tarlat = 28.59293f;
+      tarlon = -81.30613f;
       break;
     default:
       tarlat = 0.0f;
@@ -784,7 +792,8 @@ void loop(void)
     int bright = analogRead(PTR_A);
     bright = map(bright, 0, 1023, 0, 255);
     strip.setBrightness(bright);
-
+	laaas = lat;
+	
       
     // set NeoPixel target display information
     setNeoPixel();
